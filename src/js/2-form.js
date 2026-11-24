@@ -7,14 +7,21 @@ let formData = {
   message: '',
 };
 
+function getTrimmedData() {
+  return {
+    email: formData.email.trim(),
+    message: formData.message.trim(),
+  };
+}
+
 const savedData = localStorage.getItem(STORAGE_KEY);
 
 if (savedData) {
   try {
     const parsedData = JSON.parse(savedData);
 
-    formData.email = parsedData.email || '';
-    formData.message = parsedData.message || '';
+    formData.email = parsedData.email ?? '';
+    formData.message = parsedData.message ?? '';
 
     form.elements.email.value = formData.email;
     form.elements.message.value = formData.message;
@@ -26,23 +33,25 @@ if (savedData) {
 form.addEventListener('input', event => {
   const { name, value } = event.target;
 
-  if (name !== 'email' && name !== 'message') {
+  if (!(name in formData)) {
     return;
   }
 
-  formData[name] = value.trim();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  formData[name] = value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getTrimmedData()));
 });
 
 form.addEventListener('submit', event => {
   event.preventDefault();
 
-  if (formData.email === '' || formData.message === '') {
+  const data = getTrimmedData();
+
+  if (data.email === '' || data.message === '') {
     alert('Fill please all fields');
     return;
   }
 
-  console.log(formData);
+  console.log(data);
 
   localStorage.removeItem(STORAGE_KEY);
   formData = {
